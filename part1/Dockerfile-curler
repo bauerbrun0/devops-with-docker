@@ -1,0 +1,9 @@
+FROM ubuntu:20.04
+
+WORKDIR /usr/src/app
+
+COPY curler.sh .
+
+RUN apt update && apt install curl -y
+
+CMD ./curler.sh

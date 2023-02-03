@@ -6,4 +6,5 @@ COPY curler.sh .
 
 RUN apt update && apt install curl -y
 
-CMD ./curler.sh
+# changed CMD to ENTRYPOINT
+ENTRYPOINT ["./curler.sh"]

@@ -91,13 +91,9 @@ $ sudo docker run web-server
 Dockerfile
 ``` docker
 FROM ubuntu:20.04
-
 WORKDIR /usr/src/app
-
 COPY curler.sh .
-
 RUN apt update && apt install curl -y
-
 CMD ./curler.sh
 ```
 ``` bash
@@ -120,3 +116,82 @@ $ cat text.log
 ``` bash
 $ sudo docker run -p 8080:8080 web-server
 ```
+
+### Utilizing tools from the Registry
+
+#### Exercise 1.11: Spring
+``` Docker
+FROM openjdk:8
+WORKDIR /usr/src/app
+COPY . .
+EXPOSE 8080
+RUN ./mvnw package
+CMD ["java", "-jar", "./target/docker-example-1.1.3.jar"]
+```
+
+#### Exercise 1.12: Hello, frontend!
+
+``` Docker
+FROM node:16
+WORKDIR /usr/src/app
+EXPOSE 5000
+COPY package* ./
+RUN npm install
+COPY . .
+RUN npm run build
+RUN npm install -g serve
+CMD ["serve", "-s", "-l", "5000", "build"]
+```
+
+#### Exercise 1.13: Hello, backend!
+``` Docker
+FROM golang:1.16
+WORKDIR /usr/src/app
+EXPOSE 8080
+COPY . .
+RUN go build
+RUN chmod +x server
+CMD ["./server"]
+```
+``` bash
+$ sudo docker build . -t example-backend
+$ sudo docker run -p 8080:8080 example-backend
+```
+
+#### Exercise 1.14: Environment
+Frontend Dockerfile
+``` Docker
+FROM node:16
+WORKDIR /usr/src/app
+EXPOSE 5000
+COPY package* ./
+RUN npm install
+COPY . .
+ENV REACT_APP_BACKEND_URL="http://localhost:8080"
+RUN npm run build
+RUN npm install -g serve
+CMD ["serve", "-s", "-l", "5000", "build"]
+```
+Backend Dockerfile
+``` Docker
+FROM golang:1.16
+WORKDIR /usr/src/app
+EXPOSE 8080
+COPY . .
+RUN go build
+RUN chmod +x server
+ENV REQUEST_ORIGIN="http://localhost:5000"
+CMD ["./server"]
+```
+Terminal 1 - `(1)` Terminal 2 - `(2)`
+``` bash
+(1) $ sudo docker build . -t example-frontend
+(1) $ sudo docker run -p 5000:5000 example-frontend
+(2) $ sudo docker build . -t example-backend
+(2) $ sudo docker run -p 8080:8080 example-backend 
+```
+
+> Skipped 
+> - Publishing 'youtube-dl' image to Docker Hub
+> - Exercise 1.15: Homework - publishing an app to Docker Hub
+> - Exercise 1.16: Heroku - publishing an app to Heroku
